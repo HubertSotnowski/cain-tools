@@ -44,7 +44,7 @@ if args.output_type=="onnx":
 
     input_names = ["input_1", "input_2"]
     output_names = ["output_frame", "output_features"]
-    torch.onnx.export(model, (data,data1), "converted.onnx", verbose=True, input_names=input_names, output_names=output_names)
+    torch.onnx.export(model, [data,data1], "converted.onnx", verbose=True, input_names=input_names, output_names=output_names)
 
 
 if args.output_type=="torch2trt":
@@ -58,7 +58,7 @@ if args.output_type=="torch2trt":
     data1 = torch.randn((1, 3, args.width, args.height)).cuda().half()
     input_names = ["input_1", "input_2"]
     output_names = ["output_frame", "output_features"]
-    model_trt = torch2trt(model.cuda(), [data,data1], input_names=input_names, output_names=output_names, log_level=trt.Logger.ERROR, fp16_mode=True, max_batch_size=10)
+    model_trt = torch2trt(model, (data,data1), input_names=input_names, output_names=output_names, log_level=trt.Logger.ERROR, fp16_mode=True, max_batch_size=10)
     model_trt.half()
     torch.save(model_trt.state_dict(), 'converted.pth')
 
