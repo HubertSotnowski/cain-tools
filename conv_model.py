@@ -34,13 +34,14 @@ except AttributeError:
 torch.save(state_dict, 'temp_conv.pth')
 
 del model
+data = torch.randn(1, 3,  int(args.height), int(args.width)).cuda().half()
+data1 = torch.randn(1, 3,  int(args.height), int(args.width)).cuda().half()
 if args.output_type=="onnx":
     print("Building model: CAIN")
     model = CAIN(depth=3)
     checkpoint = torch.load("temp_conv.pth")
     model.load_state_dict(checkpoint)
-    data = torch.randn((1, 3, int(args.height), int(args.width)))
-    data1 = torch.randn((1, 3, int(args.height), int(args.width)))
+    model.cuda().half()
 
     input_names = ["input_1", "input_2"]
     output_names = ["output_frame", "output_features"]
@@ -54,8 +55,6 @@ if args.output_type=="torch2trt":
     checkpoint = torch.load("temp_conv.pth")
     model.load_state_dict(checkpoint)
     model.cuda().half()
-    data = torch.randn((1, 3, args.width, args.height)).cuda().half()
-    data1 = torch.randn((1, 3, args.width, args.height)).cuda().half()
     input_names = ["input_1", "input_2"]
     output_names = ["output_frame", "output_features"]
     model_trt = torch2trt(model, (data,data1), input_names=input_names, output_names=output_names, log_level=trt.Logger.ERROR, fp16_mode=True, max_batch_size=10)
